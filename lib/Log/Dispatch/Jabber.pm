@@ -44,7 +44,7 @@ use strict;
 package Log::Dispatch::Jabber;
 use base qw (Log::Dispatch::Output);
 
-$Log::Dispatcher::Jabber::VERSION = '0.21';
+$Log::Dispatcher::Jabber::VERSION = '0.22';
 
 use Net::Jabber qw (Client);
 
@@ -195,6 +195,7 @@ sub new  {
   $self->{'__login'}  = $args{login};
   $self->{'__to'}     = (ref($args{to}) eq "ARRAY") ? $args{to} : [ $args{to}];
   $self->{'__bufto'}  = $args{buffer};
+  $self->{'__buffer'} = [];
 
   return $self;
 }
@@ -290,11 +291,11 @@ sub DESTROY {
 
 =head1 VERSION
 
-0.21
+0.22
 
 =head1 DATE
 
-October 01, 2002
+October 02, 2002
 
 =head1 AUTHOR
 
