@@ -1,5 +1,11 @@
 Revision history for Perl extension Log::Dispatch::Jabber.
 
+0.21	- Tue Oct 01 2002
+
+	- Added option to pass "to" recipient as a string so that the package will play nicely with Log::Log4perl
+
+	- Updated POD
+
 0.2	- Tue Oct 01 2002
 
 	- Added option for buffering messages before sending

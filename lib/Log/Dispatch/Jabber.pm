@@ -18,7 +18,7 @@ Log::Dispatch::Jabber - Log messages via Jabber
                                                      password => "*****",
                                                      resource => "logger",
                                                     },
-	                                     to=>["someone\@a.jabber.server"],
+	                                     to=>"someone\@a.jabber.server",
                                              # buffer => 5,
                                             );
 
@@ -44,7 +44,7 @@ use strict;
 package Log::Dispatch::Jabber;
 use base qw (Log::Dispatch::Output);
 
-$Log::Dispatcher::Jabber::VERSION = '0.2';
+$Log::Dispatcher::Jabber::VERSION = '0.21';
 
 use Net::Jabber qw (Client);
 
@@ -140,7 +140,9 @@ Required
 
 B<to>
 
-An array reference of Jabber addresses that messages should be sent to.
+A string or an array reference.
+
+A list of Jabber addresses that messages should be sent to.
 
 Required
 
@@ -191,7 +193,7 @@ sub new  {
   }
 
   $self->{'__login'}  = $args{login};
-  $self->{'__to'}     = $args{to};
+  $self->{'__to'}     = (ref($args{to}) eq "ARRAY") ? $args{to} : [ $args{to}];
   $self->{'__bufto'}  = $args{buffer};
 
   return $self;
@@ -288,7 +290,7 @@ sub DESTROY {
 
 =head1 VERSION
 
-0.2
+0.21
 
 =head1 DATE
 
