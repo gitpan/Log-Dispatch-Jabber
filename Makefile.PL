@@ -1,4 +1,4 @@
-use ExtUtils::MakeMaker;
+use CPAN::MakeMaker;
 
 WriteMakefile(
               'NAME'         => 'Log::Dispatch::Jabber',
