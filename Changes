@@ -1,5 +1,11 @@
 Revision history for Perl extension Log::Dispatch::Jabber.
 
+0.2	- Tue Oct 01 2002
+
+	- Added option for buffering messages before sending
+
+	- Updated POD
+
 0.1	- Fri Sep 27 2002
 
 	- Initial release

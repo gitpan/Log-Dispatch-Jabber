@@ -19,6 +19,7 @@ Log::Dispatch::Jabber - Log messages via Jabber
                                                      resource => "logger",
                                                     },
 	                                     to=>["someone\@a.jabber.server"],
+                                             # buffer => 5,
                                             );
 
  $dispatcher->add($jabber);
@@ -43,7 +44,7 @@ use strict;
 package Log::Dispatch::Jabber;
 use base qw (Log::Dispatch::Output);
 
-$Log::Dispatcher::Jabber::VERSION = '0.1';
+$Log::Dispatcher::Jabber::VERSION = '0.2';
 
 use Net::Jabber qw (Client);
 
@@ -145,6 +146,14 @@ Required
 
 =item *
 
+B<buffer>
+
+String. The number of messages to buffer before sending.
+
+If the argument passed is "-" messages will be buffered until the object's destructor is called.
+
+=item *
+
 B<debuglevel>
 
 Int. Net::Jabber debugging level; consult docs for details.
@@ -183,6 +192,7 @@ sub new  {
 
   $self->{'__login'}  = $args{login};
   $self->{'__to'}     = $args{to};
+  $self->{'__bufto'}  = $args{buffer};
 
   return $self;
 }
@@ -198,6 +208,19 @@ Please consult the docs for details.
 sub log_message {
   my $self = shift;
   my $log  = { @_ };
+
+  push @{$self->{'__buffer'}},$log->{message};
+
+  if ((! $self->{'__bufto'}) ||
+      (($self->{'__bufto'}) && (scalar(@{$self->{'__buffer'}}) == $self->{'__bufto'}))) {
+    $self->_send();
+  }
+
+  return 1;
+}
+
+sub _send {
+  my $self = shift;
 
   my $ok = $self->{'__client'}->Connect(
 					hostname => $self->{'__login'}->{'hostname'},
@@ -222,12 +245,8 @@ sub log_message {
 
   #
 
-  chomp($log->{message});
-
-  #
-
   my $im = Net::Jabber::Message->new();
-  $im->SetMessage(body=>$log->{message},type=>"chat");
+  $im->SetMessage(body=>join("",@{$self->{'__buffer'}}),type=>"chat");
 
   foreach (@{$self->{'__to'}}) {
     $im->SetTo($_);
@@ -235,6 +254,7 @@ sub log_message {
   }
 
   $self->{'__client'}->Disconnect();
+  $self->{'__buffer'} = [];
   return 1;
 }
 
@@ -255,6 +275,10 @@ sub _error {
 sub DESTROY {
   my $self = shift;
 
+  if (scalar(@{$self->{'__buffer'}})) {
+    $self->_send();
+  }
+
   if ($self->{'__client'}->Connected()) {
     $self->{'__client'}->Disconnect();
   }
@@ -264,11 +288,11 @@ sub DESTROY {
 
 =head1 VERSION
 
-0.1
+0.2
 
 =head1 DATE
 
-September 27, 2002
+October 01, 2002
 
 =head1 AUTHOR
 
@@ -293,10 +317,6 @@ If the package does not disconnect between messages but also doesn't do the Auth
 If the package does not disconnect and does the AuthSend thing, the Jabber server returns a '503' error which is a flag that something is wrong. Except, you can still send the message if you ignore the fact that everything is not 'ok'.
 
 Go figure.
-
-=item *
-
-Adde featuritis to buffer (n) number of messages before sending.
 
 =item *
 
